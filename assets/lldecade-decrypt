@@ -1,0 +1,42 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use 5.10.0;
+use Regexp::Common 'net';
+use Regexp::IPv6 '$IPv6_re';
+
+my $tmp;
+while (<>) {
+    chomp $_;
+    my $line = $_;
+    if ($line =~ /^$RE{net}{IPv4}{dec}$/) {
+        for my $o (split /\./, $line) {
+            if (length($o) > 1 && $o =~ /^0/) {
+                $line = 'XXXX';
+                last;
+            }
+        }
+    }
+    elsif ($line =~ /^$IPv6_re$/) {
+        for my $o (split ':', $line) {
+            if (length($o) > 1 && $o =~ /^0/) {
+                $line = 'XXX';
+                last;
+            }
+        }
+    }
+
+    given ($line) {
+        $tmp .= '00' when /^
+            $RE{net}{MAC}{dec}{-sep => '-'}
+            |$RE{net}{MAC}{hex}{-sep => '-'}
+            |$RE{net}{MAC}
+        $/x;
+        $tmp .= '01' when /^$RE{net}{IPv4}$/;
+        $tmp .= '10' when /^$IPv6_re$/;
+        $tmp .= '11';
+    }
+}
+
+say pack 'B*' => $tmp;
