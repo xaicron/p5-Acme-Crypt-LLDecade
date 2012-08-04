@@ -12,7 +12,7 @@ for my $file (qw/lldecade-decrypt lldecade-encrypt/) {
     say $fh '#!perl';
     say $fh 'use Acme::Crypt::LLDecade;';
     print $fh $ret;
-    chmod 0755, $fh;
+    chmod 0755, $fh unless $^O eq 'MSWin32';
 }
 
 say 'done.';
